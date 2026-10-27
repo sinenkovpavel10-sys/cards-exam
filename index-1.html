@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef6f4" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0b1412" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<title>Карточки из конспекта</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+:root,.ex{--x:hsl(var(--h) 58% 36%);--at:hsl(var(--h) 62% 34%);--act:hsl(var(--h) 70% 93%)}
+:root{color-scheme:light dark;--h:262;--fd:Georgia,'Noto Serif',serif;--fu:system-ui,Roboto,'Segoe UI',sans-serif;--bg:#eef6f4;--sf:#fff;--s2:#e8eaf3;--tx:#171a26;--mu:#666c82;--ln:#dfe2ec;--lm:#000;--ok:#15803d;--no:#d92d3a}
+@media(prefers-color-scheme:dark){:root,.ex{--at:hsl(var(--h) 85% 78%);--act:hsl(var(--h) 32% 24%)}:root{--bg:#0b1412;--sf:#1b1f2c;--s2:#262b3b;--tx:#eceef7;--mu:#98a0b8;--ln:#2c3144;--lm:#fff;--ok:#4ade80;--no:#ff7b84}}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:16px/1.45 var(--fu);overscroll-behavior:none;-webkit-font-smoothing:antialiased}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+::-webkit-scrollbar{display:none}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--x);outline-offset:2px}
+.scr{display:none;height:100%;flex-direction:column;max-width:600px;margin:0 auto;position:relative}
+.scr.on{display:flex}
+h1{font:700 36px/1.05 var(--fd);margin:0;letter-spacing:-.015em}
+h2{font:700 22px var(--fd);margin:0 0 4px}
+.hd2{display:flex;align-items:flex-end;gap:12px;padding:26px 20px 14px}.hd2>div{flex:1}.hd2 p{margin:8px 0 0;color:var(--mu);font-size:14.5px}
+.hd{display:flex;align-items:center;gap:8px;padding:12px 16px 6px}
+.ib{flex:none;width:46px;height:46px;border-radius:16px;background:var(--sf);border:1px solid var(--ln);display:grid;place-items:center;font:700 15px var(--fu)}.ib small{font-size:12px}
+.dot{width:24px;height:24px;border-radius:50%;background:var(--x)}
+#nm{flex:1;min-width:0;background:none;border:0;padding:6px 4px;color:var(--tx);font:700 24px/1.2 var(--fd);outline:0;border-radius:0}
+#exl{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px 16px 104px}
+.ex{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px 14px 14px;border-radius:22px;text-align:left;background:color-mix(in srgb,var(--x) 7%,var(--sf));border:1px solid color-mix(in srgb,var(--x) 24%,var(--ln))}
+.ex:active{background:color-mix(in srgb,var(--x) 15%,var(--sf))}
+.rg{position:relative;flex:none;width:58px;height:58px}.rg svg{width:100%;height:100%;transform:rotate(-90deg)}
+.rg circle{fill:none;stroke-width:6}.rg .t{stroke:color-mix(in srgb,var(--x) 20%,transparent)}.rg .f{stroke:var(--x);stroke-linecap:round}
+.rg b{position:absolute;inset:0;display:grid;place-items:center;font:700 14px var(--fu)}
+.ex div{flex:1;min-width:0}.ex strong{display:block;font:700 19px/1.25 var(--fd);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ex small{color:var(--mu);font-size:13.5px}
+.ex svg.ch{flex:none;color:var(--mu)}
+.em{margin:auto;text-align:center;max-width:290px;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:8px}.em b{font:700 22px var(--fd);color:var(--tx)}
+.mini{position:relative;width:84px;height:110px;margin-bottom:14px}.mini i{position:absolute;inset:0;border-radius:18px;background:var(--x)}.mini i:nth-child(1){opacity:.2;transform:rotate(-14deg)}.mini i:nth-child(2){opacity:.45;transform:rotate(-6deg)}
+.fab{position:absolute;right:16px;bottom:16px;display:flex;align-items:center;gap:10px;height:58px;padding:0 24px 0 18px;border-radius:20px;background:var(--x);color:#fff;font:700 16px var(--fu);box-shadow:0 10px 24px -8px hsl(var(--h) 60% 20%/.6)}
+.pn{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:6px 16px 12px}
+.in{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+.nav{display:flex;padding:8px 8px 10px;background:var(--sf);border-top:1px solid var(--ln)}
+.nv{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 12px var(--fu);color:var(--mu)}.nv i{display:grid;place-items:center;width:64px;height:32px;border-radius:16px}
+.nv.on{color:var(--tx)}.nv.on i{background:var(--act);color:var(--at)}
+#p1{overflow:auto}
+.sheet{display:flex;flex-direction:column;flex:1;min-height:150px;background:var(--sf);border:1.5px solid var(--ln);border-radius:22px;padding:14px 16px 10px}.sheet:focus-within{border-color:var(--x)}
+.lh{display:flex;align-items:center;gap:10px;margin-bottom:8px}.lh b{flex:1;font:700 15px var(--fu)}.lh small{color:var(--mu);font-size:12.5px}
+.sheet textarea{flex:1;min-height:90px;background:none;border:0;padding:0;font:16px/1.6 var(--fd);outline:0;border-radius:0}
+input,textarea,select{width:100%;background:var(--s2);color:var(--tx);border:1.5px solid transparent;border-radius:14px;padding:13px 14px;font:inherit;outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--x)}
+textarea{resize:none}
+.lab{display:block;font:600 13px var(--fu);color:var(--mu);margin:16px 0 6px}
+.hn{font-size:12.5px;color:var(--mu);margin:6px 0 0}
+.err{color:var(--no);font-size:14px}.err:empty{display:none}
+details{background:var(--sf);border:1.5px solid var(--ln);border-radius:22px;padding:0 16px 12px}
+summary{display:flex;align-items:center;gap:10px;padding:14px 0;font:600 15px var(--fu);list-style:none}summary::-webkit-details-marker{display:none}summary svg{color:var(--at)}
+#pr{height:210px;margin-bottom:10px;font:15px/1.5 var(--fu)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:54px;border-radius:16px;background:var(--x);color:#fff;font:700 17px var(--fu)}
+.btn.g{background:var(--s2);color:var(--tx)}.btn:disabled{opacity:.5}.btn:active{filter:brightness(.92)}
+.sp{width:18px;height:18px;border-radius:50%;border:2.5px solid #fff5;border-top-color:#fff;animation:rt .7s linear infinite}
+@keyframes rt{to{transform:rotate(1turn)}}@keyframes up{from{transform:translateY(100%)}}
+.pr{display:flex;align-items:center;gap:10px}
+.pg{flex:1;height:8px;border-radius:9px;background:var(--s2);overflow:hidden}.pg i{display:block;height:100%;width:0;background:var(--x);border-radius:9px;transition:width .3s}
+#cnt{font:600 14px var(--fu);color:var(--mu)}
+.cp{display:inline-flex;align-items:center;gap:3px;font:700 13px var(--fu);padding:4px 9px;border-radius:99px;margin-left:4px;color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent)}.cp.ok,.pill.ok{--c:var(--ok)}.cp.no,.pill.no{--c:var(--no)}
+#deck{flex:1;position:relative;min-height:0;margin-bottom:14px}
+#deck::before,#deck::after{content:"";position:absolute;inset:0;border-radius:30px;background:var(--x)}
+#deck::before{opacity:.22;transform:translateY(14px) scale(.92)}#deck::after{opacity:.4;transform:translateY(7px) scale(.96)}
+.card{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;padding:24px 24px 20px;border-radius:30px;touch-action:pan-y;user-select:none;overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s;box-shadow:0 18px 36px -16px hsl(var(--h) 70% 20%/.65)}
+.card.fr{background:var(--x);color:#fff}.card.bk{background:var(--sf);border:1px solid var(--ln)}
+.ql{font:600 14px var(--fu);opacity:.8}
+.q{font:700 clamp(22px,6.4vw,29px)/1.28 var(--fd);margin:auto 0;text-wrap:balance}
+.hint{display:flex;justify-content:space-between;font:600 13px var(--fu);opacity:.8}.hint span{display:flex;align-items:center;gap:4px}
+.stm{position:absolute;top:26px;padding:4px 14px;border:3px solid;border-radius:12px;font:800 24px var(--fu);opacity:0;pointer-events:none}
+.stm.ok{left:22px;transform:rotate(-10deg)}.stm.no{right:22px;transform:rotate(10deg)}
+.fr .stm{background:#0005}.fr .stm.ok{color:#9af0b8}.fr .stm.no{color:#ffb3b8}
+.bk .stm.ok{color:var(--ok)}.bk .stm.no{color:var(--no)}
+.card[data-d=r] .stm.ok,.card[data-d=l] .stm.no{opacity:var(--g,0)}
+.bh{display:flex;gap:8px}
+.pill{font:700 12.5px var(--fu);padding:5px 12px;border-radius:99px;background:var(--s2);color:var(--mu)}.pill.ok,.pill.no{color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent)}
+.qs{font:600 15px/1.4 var(--fd);color:var(--mu);margin:14px 0 10px}
+.a{flex:1;min-height:0;overflow-y:auto;font:17.5px/1.7 var(--fd)}.a p{margin:0 0 8px}.a .li{margin:0 0 4px}.a .phs img{height:60px}
+.bd{display:inline-block;font:600 12px var(--fu);padding:4px 10px;border-radius:99px;background:var(--s2);color:var(--mu);margin:6px 0}
+#bar{display:flex;align-items:center;justify-content:center;gap:12px}
+.rs{flex:none;width:50px;height:50px;border-radius:16px;background:var(--s2);display:grid;place-items:center}.rs:disabled{opacity:.35}
+.rb{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--sf));border:2px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.pb2{flex:1;height:54px;border-radius:16px;font:700 16px var(--fu);display:flex;align-items:center;justify-content:center;gap:8px}.pb2.pri{flex:1.6;background:var(--x);color:#fff}.pb2.sec{background:var(--s2)}
+#res{flex:1;overflow:auto;text-align:center}#res h1{font-size:28px;margin:8px 0 4px}
+.ring{position:relative;width:176px;height:176px;margin:10px auto}.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.rt,.rf{fill:none;stroke-width:11}.rt{stroke:var(--s2)}.rf{stroke:var(--x);stroke-linecap:round}
+.ring div{position:absolute;inset:0;display:grid;place-content:center}.ring b{font:700 42px/1 var(--fd)}.ring small{color:var(--mu);font-size:14px}
+.sts{display:flex;gap:10px;margin:6px 0 14px}.sts div{flex:1;border-radius:18px;padding:12px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--sf));font:600 14px var(--fu)}.sts b{display:block;font:700 28px/1.1 var(--fd)}
+.sts .ok{--c:var(--ok)}.sts .no{--c:var(--no)}
+.rl{text-align:left;background:var(--sf);border:1px solid var(--ln);border-radius:18px}.rl div{padding:12px 14px;border-bottom:1px solid var(--ln);font:15px/1.4 var(--fd)}.rl div:last-child{border:0}
+.tl{display:flex;gap:8px;align-items:center}
+.sb{flex:1;display:flex;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--ln);border-radius:16px;padding:0 14px;height:46px;color:var(--mu)}.sb input{background:none;border:0;padding:0;height:100%;border-radius:0}
+#nl{--fs:17px;flex:1;overflow:auto}
+.nt{position:relative;background:var(--sf);border:1px solid var(--ln);border-radius:22px;padding:18px 18px 6px 22px;margin-bottom:12px;font:var(--fs)/1.72 var(--fd)}
+.nt::before{content:"";position:absolute;left:0;top:20px;bottom:20px;width:5px;border-radius:0 5px 5px 0;background:var(--x)}
+.nt h3{display:flex;gap:12px;margin:0 0 12px;font:700 calc(var(--fs) + 3px)/1.35 var(--fd)}
+.nt .n{flex:none;min-width:34px;height:34px;border-radius:12px;background:var(--act);color:var(--at);font:700 14px/34px var(--fu);text-align:center}
+.nt p{margin:0 0 10px}.li{display:flex;gap:8px;margin:0 0 6px}.li i{flex:none;font-style:normal;color:var(--at);font-weight:700;min-width:1.1em}
+.lb{display:inline-block;font:700 12.5px/1.6 var(--fu);padding:0 10px;border-radius:99px;margin-right:8px;vertical-align:1px;color:color-mix(in srgb,var(--c) 70%,var(--lm));background:color-mix(in srgb,var(--c) 16%,transparent)}
+.ft{display:flex;justify-content:space-between;align-items:center}
+.lk{display:flex;align-items:center;gap:6px;color:var(--at);font:600 14px var(--fu);padding:10px 0 10px 10px}
+.phs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.phs img{height:84px;max-width:100%;border-radius:12px;border:1px solid var(--ln);object-fit:cover;background:var(--s2)}
+.th{position:relative}.th button{position:absolute;top:-6px;right:-6px;width:26px;height:26px;border-radius:50%;background:var(--no);color:#fff;font-size:13px}
+dialog{border:0;padding:0;background:var(--sf);color:var(--tx);width:100%;max-width:600px;margin:auto auto 0;border-radius:28px 28px 0 0;max-height:92dvh;overflow:auto;animation:up .28s cubic-bezier(.2,.8,.2,1)}
+dialog::backdrop{background:rgba(10,12,22,.55)}
+.sh{padding:10px 20px calc(20px + env(safe-area-inset-bottom))}.gb{width:44px;height:5px;border-radius:9px;background:var(--ln);margin:0 auto 14px}
+#ed textarea{min-height:200px;font:16px/1.6 var(--fd)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 10px}.chip{background:var(--act);color:var(--at);border-radius:99px;padding:8px 14px;font:600 13px var(--fu)}
+.row{display:flex;gap:10px;margin-top:16px}.row .btn{flex:1}
+#vw{max-width:100vw;width:100vw;height:100dvh;max-height:100dvh;margin:0;border-radius:0;background:#000;animation:none}#vw img{width:100%;height:100%;object-fit:contain}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+:root,.ex{--g1:hsl(var(--h) 62% 36%);--g2:hsl(calc(var(--h) + 28) 60% 26%)}
+:root{--h:172;--fd:'Iowan Old Style','Palatino Linotype','Source Serif 4',Georgia,serif;--bg:hsl(var(--h) 30% 96%);--sf:hsl(var(--h) 40% 99.5%);--s2:hsl(var(--h) 22% 92%);--ln:hsl(var(--h) 18% 87%);--tx:hsl(var(--h) 32% 10%);--mu:hsl(var(--h) 10% 40%);--gl1:hsl(var(--h) 85% 76%/.45);--gl2:hsl(calc(var(--h) + 50) 85% 80%/.28);--sh:0 1px 2px hsl(var(--h) 40% 20%/.06),0 10px 26px -14px hsl(var(--h) 50% 20%/.25)}
+@media(prefers-color-scheme:dark){:root,.ex{--x:hsl(var(--h) 60% 56%);--g1:hsl(var(--h) 56% 44%);--g2:hsl(calc(var(--h) + 28) 54% 30%)}:root{--bg:hsl(var(--h) 30% 7%);--sf:hsl(var(--h) 22% 11.5%);--s2:hsl(var(--h) 18% 16%);--ln:hsl(var(--h) 16% 20%);--tx:hsl(var(--h) 30% 94%);--mu:hsl(var(--h) 10% 64%);--gl1:hsl(var(--h) 70% 36%/.34);--gl2:hsl(calc(var(--h) + 50) 70% 38%/.18);--sh:0 1px 0 #ffffff0a inset,0 12px 28px -14px #000}}
+body{background:radial-gradient(90% 46% at 100% 0,var(--gl1),transparent 70%),radial-gradient(80% 42% at 0 100%,var(--gl2),transparent 70%),var(--bg)}
+h1{font:800 42px/1 var(--fd);letter-spacing:-.025em}
+.hd2{padding:34px 22px 18px}.hd2 p{font-weight:500}
+.ib{box-shadow:var(--sh);border-radius:18px}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}}
+.ex{border-radius:26px;padding:16px 18px 16px 16px;border-color:color-mix(in srgb,var(--x) 20%,var(--ln));background:linear-gradient(120deg,color-mix(in srgb,var(--x) 15%,var(--sf)),var(--sf) 65%);box-shadow:var(--sh);animation:fu .45s both;transition:transform .15s}
+.ex:active{transform:scale(.98)}.ex strong{font-size:20px}.rg b{font:800 14px var(--fd)}
+.btn,.fab,.pb2.pri{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;box-shadow:0 12px 24px -12px var(--g1),inset 0 1px 0 #ffffff30;transition:transform .12s}
+.btn.g,.pb2.sec{background:var(--sf);color:var(--tx);border:1px solid var(--ln);box-shadow:var(--sh)}
+.btn:active,.fab:active,.pb2:active,.rb:active{transform:scale(.96);filter:none}
+.fab{height:60px;border-radius:22px}
+.sheet,details{border-radius:26px;border:1px solid var(--ln);box-shadow:var(--sh)}
+.sheet:focus-within{border-color:var(--x);box-shadow:0 0 0 4px color-mix(in srgb,var(--x) 16%,transparent)}
+.lh b{font:700 12.5px var(--fu);letter-spacing:.07em;text-transform:uppercase;color:var(--mu)}
+.pst{padding:6px 12px;border-radius:99px;background:var(--act);color:var(--at);font:700 12.5px var(--fu)}
+.pc{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;text-align:left;border-radius:24px;border:1px solid color-mix(in srgb,var(--x) 26%,var(--ln));background:linear-gradient(120deg,color-mix(in srgb,var(--x) 15%,var(--sf)),var(--sf));box-shadow:var(--sh)}
+.pc>i{flex:none;width:46px;height:46px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--g1),var(--g2))}
+.pc div{flex:1;min-width:0}.pc b{display:block;font:700 16px var(--fu)}.pc small{color:var(--mu);font-size:13.5px}
+#go{position:sticky;bottom:4px;z-index:3}
+.nav{margin:0 14px 10px;padding:6px;border:1px solid var(--ln);border-radius:28px;background:color-mix(in srgb,var(--sf) 78%,transparent);backdrop-filter:blur(18px) saturate(1.5);box-shadow:var(--sh)}
+.nv{padding:5px 0 3px;gap:2px}.nv i{width:60px;height:32px;transition:background .2s}
+.nv.on i{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff}
+#deck::before,#deck::after{background:linear-gradient(160deg,var(--g1),var(--g2));border-radius:32px}
+.card{border-radius:32px;padding:26px 24px 22px}
+.card.fr{background:radial-gradient(120% 70% at 100% 0,hsl(calc(var(--h) + 34) 75% 52%/.5),transparent 62%),linear-gradient(160deg,var(--g1),var(--g2))}
+.card.fr::before{content:"";position:absolute;z-index:-1;width:270px;height:270px;right:-100px;bottom:-120px;border-radius:50%;border:46px solid #ffffff14}
+.ql{align-self:flex-start;padding:5px 13px;border-radius:99px;background:#ffffff26;font:700 12.5px var(--fu);letter-spacing:.04em;opacity:1}
+.q{font:700 clamp(23px,6.6vw,31px)/1.25 var(--fd)}
+.rb{width:76px;height:76px;border-radius:28px;box-shadow:var(--sh);transition:transform .12s}
+.nt{border-radius:26px;box-shadow:var(--sh);animation:fu .4s both}
+.nt .n{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff}
+dialog{border-radius:32px 32px 0 0;box-shadow:0 -24px 60px -24px #0009}
+dialog::backdrop{background:rgba(4,12,10,.5);backdrop-filter:blur(6px)}
+.chip{border:1px solid transparent}.chip.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff}
+#pmt{min-height:250px;font:14.5px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.seg{display:flex;gap:4px;padding:4px;border-radius:16px;background:var(--s2);margin:12px 0}.seg button{flex:1;height:40px;border-radius:12px;font:600 14px var(--fu);color:var(--mu)}.seg .on{background:var(--sf);color:var(--tx);box-shadow:var(--sh)}
+</style><style>
+.bh{align-items:center}.cpb{margin-left:auto;display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font:700 12.5px var(--fu);color:var(--at);background:var(--act)}
+.card.bk .qs{flex:none;margin:12px 0 8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card.bk .qs.op{display:block;flex:0 1 auto;min-height:0;max-height:42%;overflow-y:auto}
+.card.bk .a{min-height:35%}
+.card .q{min-height:0;overflow-y:auto;overscroll-behavior:contain}.q.lg{font-size:clamp(17px,4.9vw,21px);line-height:1.38}
+.ac{display:flex;gap:6px}.nt{-webkit-user-select:text;user-select:text}
+.m{font-size:1.04em}.m sub,.m sup{font-size:.72em;line-height:0;position:relative}.m sub{vertical-align:-.3em}.m sup{vertical-align:.55em}
+.mo{margin:0 .22em}.mt{white-space:pre-wrap;font-style:normal}.mop{font-size:1.25em;line-height:0}
+.mf{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .12em;font-size:.94em;line-height:1.3}
+.mf>span{padding:0 .28em}.mf>span:first-child{border-bottom:1.3px solid}
+.ms{white-space:nowrap}.mr{border-top:1.3px solid;padding:0 .1em}
+.ma{position:relative;display:inline-block}.ma::before{content:attr(data-a);position:absolute;left:50%;transform:translateX(-50%);top:-.7em;font-size:.8em;line-height:1}
+.ss{display:inline-flex;flex-direction:column;vertical-align:-.6em;font-size:.72em;line-height:1.1}.ss sup,.ss sub{font-size:1em;vertical-align:baseline;line-height:1.1}
+.mb{display:block;text-align:center;margin:8px 0;overflow-x:auto;padding:2px 0}
+</style></head><body>
+<section class="scr on" id="s0">
+ <header class="hd2"><div><h1>Экзамены</h1><p id="hs"></p></div><button class="ib" id="gear" aria-label="Настройки" data-i="set"></button></header>
+ <div id="exl"></div>
+ <button class="fab" id="nex"><i data-i="plus" data-s="22"></i>Новый экзамен</button>
+</section>
+<section class="scr" id="s1">
+ <header class="hd"><button class="ib" id="back" aria-label="К списку" data-i="back"></button><input id="nm" aria-label="Название экзамена"><button class="ib" id="clr" aria-label="Сменить цвет"><span class="dot"></span></button><button class="ib" id="del" aria-label="Удалить экзамен" data-i="trash" data-s="20"></button></header>
+ <div class="pn" id="p1">
+  <div class="sheet"><div class="lh"><b>Конспект лекции</b><small id="cl"></small><button type="button" class="pst" data-for="ml">Вставить</button></div><textarea id="ml" placeholder="Вставь текст конспекта. Можно оставить пустым: тогда ответы напишет ИИ."></textarea></div>
+  <div class="sheet"><div class="lh"><b>Вопросы к экзамену</b><small id="cq"></small><button type="button" class="pst" data-for="mq">Вставить</button></div><textarea id="mq" placeholder="Каждый вопрос с новой строки"></textarea></div>
+  <button class="pc" id="ppo" type="button"><i data-i="ai" data-s="22"></i><div><b>Промпт для ИИ</b><small id="ppl"></small></div><span data-i="r" data-s="20" style="color:var(--mu)"></span></button>
+  <div class="err" id="err"></div>
+  <button class="btn" id="go"><i data-i="ai" data-s="20"></i>Создать карточки</button>
+ </div>
+ <div class="pn" id="p2" hidden>
+  <div class="in" id="dk">
+   <div class="pr"><div class="pg"><i id="pb"></i></div><span id="cnt"></span><span id="st"></span></div>
+   <div id="deck"><div class="card fr" id="card"></div></div>
+   <div id="bar"></div>
+  </div>
+  <div class="in" id="rs" hidden>
+   <div id="res"></div>
+   <button class="btn" id="rep">Повторить «не знаю»</button>
+   <button class="btn g" id="all">Пройти заново</button>
+   <button class="btn g" id="lastc">К последней карточке</button>
+  </div>
+ </div>
+ <div class="pn" id="p3" hidden>
+  <div class="tl"><label class="sb"><i data-i="find" data-s="20"></i><input id="sq" type="search" placeholder="Поиск по конспекту"></label><button class="ib" id="fm" aria-label="Мельче">A<small>−</small></button><button class="ib" id="fp" aria-label="Крупнее">A<small>+</small></button><button class="ib" id="pp3" aria-label="Промпт ИИ" data-i="ai" data-s="20"></button></div>
+  <div id="nl"></div>
+  <button class="btn g" id="cp"><i data-i="cp" data-s="20"></i>Скопировать конспект</button>
+ </div>
+ <nav class="nav"><button class="nv" id="t1"><i data-i="doc"></i>Материалы</button><button class="nv" id="t2"><i data-i="lay"></i>Карточки</button><button class="nv" id="t3"><i data-i="book"></i>Конспект</button></nav>
+</section>
+<dialog id="dlg"><form method="dialog"><div class="sh"><div class="gb"></div>
+ <h2>Настройки ИИ</h2>
+ <label class="lab">Провайдер</label><select id="pv"><option value="g">Google Gemini (есть бесплатный ключ)</option><option value="o">OpenAI</option></select>
+ <label class="lab">API-ключ (хранится только на этом телефоне)</label><input id="ky" type="password" autocomplete="off">
+ <label class="lab">Модель (необязательно)</label><input id="md">
+ <p class="hn">Бесплатный ключ Gemini: aistudio.google.com/apikey</p>
+ <div class="row"><button class="btn" id="sv">Сохранить</button></div>
+</div></form></dialog>
+<dialog id="pm"><form method="dialog"><div class="sh"><div class="gb"></div>
+ <h2>Промпт для ИИ</h2>
+ <p class="hn" style="margin:0 0 12px">Так ИИ пишет ответы и конспект. Текст конспекта, вопросы и формат JSON приложение добавляет само.</p>
+ <div class="chips" id="pps"></div>
+ <textarea id="pmt" spellcheck="false"></textarea>
+ <div class="seg"><button type="button" id="sc1">Для всех экзаменов</button><button type="button" id="sc2">Только этот</button></div>
+ <div class="row" style="margin-top:0"><button class="btn g" id="pmr" type="button">Сбросить</button><button class="btn g" id="pms">Сохранить</button></div>
+ <button class="btn" id="pmg" style="margin-top:10px"><i data-i="ai" data-s="20"></i>Сохранить и создать заново</button>
+</div></form></dialog>
+<dialog id="ed"><form method="dialog"><div class="sh"><div class="gb"></div>
+ <h2>Редактирование</h2>
+ <label class="lab">Вопрос</label><input id="eq">
+ <label class="lab">Ответ</label><textarea id="ea"></textarea>
+ <p class="hn">Выделение: **слово**. Пункт списка: строка, начинающаяся с «• ». Метки: «Определение:», «Формула:», «Теорема:», «Доказательство:», «Пример:».</p>
+ <label class="lab">Фото</label><div class="phs" id="ephs"></div><button type="button" class="btn g" id="eph"><i data-i="cam" data-s="20"></i>Добавить фото</button><input type="file" id="ef" accept="image/*" multiple hidden>
+ <label class="lab">Поправить с ИИ</label>
+ <div class="chips"><button type="button" class="chip">Подробнее</button><button type="button" class="chip">Короче</button><button type="button" class="chip">Добавь определение</button><button type="button" class="chip">Добавь доказательство</button><button type="button" class="chip">Добавь пример</button></div>
+ <input id="ei" placeholder="Что изменить? Можно оставить пустым">
+ <button type="button" class="btn g" id="eai" style="margin-top:8px"><i data-i="ai" data-s="20"></i>Переписать с ИИ</button>
+ <div class="err" id="eer"></div>
+ <div class="row"><button class="btn g">Отмена</button><button class="btn" id="esv">Сохранить</button></div>
+</div></form></dialog>
+<dialog id="vw"><img id="vi" alt=""></dialog>
+<script>
+const $=id=>document.getElementById(id),
+ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},
+sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+nl=s=>esc(s).replace(/\n/g,'<br>'),
+DM={g:'gemini-flash-latest',o:'gpt-4o-mini'},
+B={L:'Из лекции',P:'Из лекции + дополнено ИИ',G:'Сгенерировано ИИ',E:'Отредактировано'},
+scr=n=>document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id==='s'+n)),
+HEAD=`Ты помогаешь готовиться к экзамену. Даны КОНСПЕКТ ЛЕКЦИИ и СПИСОК ВОПРОСОВ.
+Для КАЖДОГО вопроса (в том же порядке, формулировку сохрани) составь ответ:
+- ответ целиком есть в конспекте: возьми его оттуда, ничего не выдумывай; src="L"
+- в конспекте есть только часть: используй её и аккуратно дополни недостающее своими знаниями; src="P"
+- в конспекте этого нет: напиши ответ сам; src="G"
+ТРЕБОВАНИЯ К ОТВЕТАМ:
+`,
+FULL=(l,q)=>`${ptxt()}
+
+Верни ТОЛЬКО JSON: {"cards":[{"q":"вопрос","a":"ответ","src":"L"}]}
+Формулы пиши в LaTeX между $…$ (слова внутри формул — в \\text{…}), окружения \\begin…\\end не используй.
+
+КОНСПЕКТ:
+${l||'(пусто)'}
+
+ВОПРОСЫ:
+${q}`;
+const RULES=`Ответ полный, но без воды, удобный для чтения. Структурируй его, каждая часть с новой строки:
+Определение: чёткое определение.
+Формула: формула, расшифровка обозначений, единицы измерения (если есть).
+Теорема: формулировка (если это теорема).
+Доказательство: по шагам (если нужно доказательство).
+• пункты перечисления, каждый с новой строки и с «• » в начале (если нужно перечисление).
+Пример: короткий пример (если нужен).
+Используй только те части, которые нужны вопросу. Ключевые термины выделяй **двойными звёздочками**. Без вступлений и повтора вопроса, другой markdown-разметки не используй. Пиши на языке вопроса.`,
+LB=/^(Определение|Формул[аы]|Теорема|Доказательство|Примеры?|Единицы измерения|Единицы|Условия|Условие|Виды|Свойства|Замечание|Вывод|Пояснение|Словами|Закон|Обозначения|Перечисление)\s*[:.]\s*/i,
+LC={определение:'#3b82f6',формула:'#8b5cf6',формулы:'#8b5cf6',теорема:'#f43f5e',доказательство:'#f43f5e',пример:'#f59e0b',примеры:'#f59e0b'},
+
+fmt=a=>String(a).replace(/\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]/g,m=>m.replace(/\n/g,' ')).split('\n').filter(l=>l.trim()).map(l=>{
+ l=l.trim();let m=l.match(/^([•\-*]|\d+[.)])\s+(.*)/);
+ if(m)return `<div class="li"><i>${/\d/.test(m[1])?m[1]:'•'}</i><span>${inl(m[2])}</span></div>`;
+ const t=l.replace(/^\*\*(.{2,40}?)\*\*/,'$1');m=t.match(LB);
+ return m?`<p><span class="lb" style="--c:${LC[m[1].toLowerCase()]||'#14b8a6'}">${m[1]}</span>${inl(t.slice(m[0].length))}</p>`:`<p>${inl(l)}</p>`;
+}).join(''),
+idb=new Promise((ok,no)=>{const r=indexedDB.open('cards-ph',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}),
+ptx=async(m,f)=>{const d=await idb;return new Promise((ok,no)=>{const q=f(d.transaction('p',m).objectStore('p'));q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})},
+pput=(k,b)=>ptx('readwrite',s=>s.put(b,k)),pget=k=>ptx('readonly',s=>s.get(k)),pdel=k=>ptx('readwrite',s=>s.delete(k)),
+pid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6),urls={},
+hydrate=r=>r.querySelectorAll('img[data-p]').forEach(async im=>{const id=im.dataset.p;if(!urls[id]){const b=await pget(id).catch(()=>0);if(b)urls[id]=URL.createObjectURL(b)}if(urls[id])im.src=urls[id]}),
+phh=c=>c.ph?.length?`<div class="phs">${c.ph.map(p=>`<img data-p="${p}" alt="">`).join('')}</div>`:'',
+IC={back:'<path d="M15 18l-6-6 6-6"/>',set:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',plus:'<path d="M12 5v14M5 12h14"/>',trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',x:'<path d="M18 6L6 18M6 6l12 12"/>',ok:'<path d="M20 6L9 17l-5-5"/>',undo:'<path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11"/>',pen:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',lay:'<path d="M12 2l10 5-10 5L2 7zM2 17l10 5 10-5M2 12l10 5 10-5"/>',book:'<path d="M2 4h6a4 4 0 014 4v13a3 3 0 00-3-3H2zM22 4h-6a4 4 0 00-4 4v13a3 3 0 013-3h7z"/>',doc:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M8 13h8M8 17h8"/>',find:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',cam:'<path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>',ai:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 3v4M21 5h-4"/>',cp:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>',l:'<path d="M15 18l-6-6 6-6"/>',r:'<path d="M9 18l6-6-6-6"/>'},
+I=(n,s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`,
+HUES=[262,214,336,16,182,148,290],
+hue=e=>e.h??HUES[Math.abs(e.id|0)%HUES.length],
+cnts=()=>{const l=$('ml').value.length,q=$('mq').value.split('\n').filter(x=>x.trim()).length;$('cl').textContent=l?l+' симв.':'';$('cq').textContent=q?q+' вопр.':''},
+ent=(c,i)=>`<article class="nt"><h3><span class="n">${i+1}</span><span>${inl(c.q)}</span></h3>${fmt(c.a)}${phh(c)}<div class="ft"><span class="bd">${B[c.s]||B.G}</span><span class="ac"><button class="lk" data-c="${i}">${I('cp',16)}Копировать</button><button class="lk" data-e="${i}">${I('pen',16)}Править</button></span></div></article>`,
+view=src=>{$('vi').src=src;$('vw').showModal()},
+shrink=async f=>{const bm=await createImageBitmap(f),k=Math.min(1,1400/Math.max(bm.width,bm.height)),cv=document.createElement('canvas');cv.width=Math.round(bm.width*k);cv.height=Math.round(bm.height*k);cv.getContext('2d').drawImage(bm,0,0,cv.width,cv.height);return new Promise(ok=>cv.toBlob(ok,'image/jpeg',.78))},
+DP=HEAD+RULES,
+PS={'Стандартный':RULES,'Кратко':'Ответ короткий: 2–4 предложения или 3–5 пунктов, только самое главное. Пункты — каждый с новой строки и с «• » в начале. Ключевые термины выделяй **двойными звёздочками**. Без вступлений и повтора вопроса, другой markdown не используй. Пиши на языке вопроса.','Подробно':'Ответ развёрнутый, как для устного ответа на «отлично». Структурируй, каждая часть с новой строки: «Определение:», «Формула:» (с расшифровкой обозначений и единицами), «Теорема:», «Доказательство:» по шагам, пункты с «• » в начале, «Пример:» на конкретных числах. Добавь типичные ошибки. Ключевые термины выделяй **двойными звёздочками**. Без вступлений, другой markdown не используй. Пиши на языке вопроса.','Простыми словами':'Объясни простым языком, как студенту-первокурснику: короткие предложения, без лишнего жаргона. Сначала суть своими словами, затем коротко и строго «Определение:», затем «Пример:» из жизни или с числами. Ключевые термины выделяй **двойными звёздочками**. Без вступлений, другой markdown не используй. Пиши на языке вопроса.'},
+ptxt=()=>E.pt?.trim()||cfg.pt?.trim()||DP,
+rules=()=>ptxt().split(/ТРЕБОВАНИЯ К ОТВЕТАМ:\s*/).pop();
+let EP=[];
+let cfg=ld('cfg',{p:'g',k:'',m:''}),db=ld('db',null),E=null,EI=0,rev=false,sx=0,dx=0,drag=false,last=1,tm;
+if(!db){const o=ld('deck',null);db={ex:(o||ld('d_qs',''))?[{id:1,name:'Экзамен 1',lec:ld('d_lec',''),qs:ld('d_qs',''),cards:o?o.c:[],ord:o?o.c.map((_,i)=>i):[],i:o?o.i:0,r:o?o.r:{}}]:[]}}
+const save=()=>sv('db',db),dsv=()=>{clearTimeout(tm);tm=setTimeout(save,500)},card=$('card');
+function home(){
+ E=null;document.documentElement.style.setProperty('--h',172);
+ $('hs').textContent=db.ex.length?`Экзаменов: ${db.ex.length} · карточек: ${db.ex.reduce((s,e)=>s+e.cards.length,0)}`:'Подготовка к экзаменам с ИИ';
+ $('exl').innerHTML=db.ex.map((e,k)=>{const t=e.cards.length,kn=Object.values(e.r).filter(v=>v===1).length,pc=t?Math.round(kn/t*100):0,C=2*Math.PI*24;
+  return `<button class="ex" data-k="${k}" style="--h:${hue(e)}"><span class="rg"><svg viewBox="0 0 58 58"><circle class="t" cx="29" cy="29" r="24"/><circle class="f" cx="29" cy="29" r="24" stroke-dasharray="${C*pc/100} ${C}"/></svg><b>${pc}%</b></span><div><strong>${esc(e.name)}</strong><small>${t?`${t} карточек, знаю ${kn}`:'Карточек ещё нет'}</small></div>${I('r',20).replace('<svg','<svg class="ch"')}</button>`}).join('')
+ ||`<div class="em"><div class="mini"><i></i><i></i><i></i></div><b>Пока пусто</b><span>Создай экзамен, вставь конспект и вопросы, а ИИ соберёт карточки для свайпа.</span></div>`;
+ scr(0)}
+$('exl').onclick=e=>{const b=e.target.closest('.ex');if(b)opn(+b.dataset.k)};
+$('nex').onclick=()=>{db.ex.push({id:Date.now(),name:'Экзамен '+(db.ex.length+1),h:HUES[db.ex.length%HUES.length],lec:'',qs:'',cards:[],ord:[],i:0,r:{}});save();opn(db.ex.length-1)};
+function opn(k){E=db.ex[k];rev=false;document.documentElement.style.setProperty('--h',hue(E));$('nm').value=E.name;$('ml').value=E.lec;$('mq').value=E.qs;if(E.pr){E.pt=HEAD+E.pr;delete E.pr;save()}plab();$('sq').value='';$('err').textContent='';cnts();render();notes();scr(1);tab(E.cards.length?2:1)}
+function tab(n){[1,2,3].forEach(i=>{$('t'+i).classList.toggle('on',i===n);$('p'+i).hidden=i!==n})}
+[1,2,3].forEach(i=>$('t'+i).onclick=()=>tab(i));
+$('back').onclick=()=>{save();home()};
+$('del').onclick=()=>{if(confirm('Удалить этот экзамен со всеми карточками и конспектом?')){db.ex=db.ex.filter(x=>x!==E);save();home()}};
+$('nm').oninput=()=>{E.name=$('nm').value;dsv()};
+$('ml').oninput=()=>{E.lec=$('ml').value;dsv()};
+$('mq').oninput=()=>{E.qs=$('mq').value;dsv()};
+let SC=1;
+const plab=()=>$('ppl').textContent=E.pt?'Свой, только для этого экзамена':cfg.pt?'Свой, для всех экзаменов':'Стандартный',
+sc=n=>{SC=n;$('sc1').classList.toggle('on',n===1);$('sc2').classList.toggle('on',n===2)},
+pch=()=>document.querySelectorAll('#pps .chip').forEach(c=>c.classList.toggle('on',$('pmt').value.trim()===(HEAD+PS[c.textContent]).trim())),
+pmo=()=>{$('pmt').value=ptxt();sc(E.pt?2:1);pch();$('pm').showModal()},
+psave=()=>{const t=$('pmt').value.trim();if(SC===2)E.pt=t;else{cfg.pt=t===DP.trim()?'':t;sv('cfg',cfg);E.pt=''}save();plab()};
+$('ppo').onclick=$('pp3').onclick=pmo;
+$('pps').innerHTML=Object.keys(PS).map(k=>`<button type="button" class="chip">${k}</button>`).join('');
+$('pps').onclick=e=>{const c=e.target.closest('.chip');if(c){$('pmt').value=(HEAD+PS[c.textContent]).trim();pch()}};
+$('pmt').oninput=pch;$('sc1').onclick=()=>sc(1);$('sc2').onclick=()=>sc(2);
+$('pmr').onclick=()=>{$('pmt').value=DP.trim();pch()};
+$('pms').onclick=psave;$('pmg').onclick=()=>{psave();tab(1);$('go').click()};
+document.querySelectorAll('.pst').forEach(b=>b.onclick=async()=>{try{const t=await navigator.clipboard.readText();if(t){const a=$(b.dataset.for);a.value=a.value.trim()?a.value.trimEnd()+'\n'+t:t;a.dispatchEvent(new Event('input'))}}catch{}});
+$('gear').onclick=()=>{$('pv').value=cfg.p;$('ky').value=cfg.k;$('md').value=cfg.m;$('md').placeholder=DM[cfg.p];$('dlg').showModal()};
+$('pv').onchange=()=>$('md').placeholder=DM[$('pv').value];
+$('sv').onclick=()=>{cfg={...cfg,p:$('pv').value,k:$('ky').value.trim(),m:$('md').value.trim()};sv('cfg',cfg)};
+async function call(p,j,m){
+ let r,x;
+ if(cfg.p==='g'){
+  r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.k},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:j?{responseMimeType:'application/json'}:{}})});
+  x=await r.json();if(!r.ok)throw Error(x.error?.message||r.status);
+  return x.candidates[0].content.parts.map(y=>y.text||'').join('');
+ }
+ r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+cfg.k},body:JSON.stringify({model:m,messages:[{role:'user',content:p}],...(j&&{response_format:{type:'json_object'}})})});
+ x=await r.json();if(!r.ok)throw Error(x.error?.message||r.status);
+ return x.choices[0].message.content;
+}
+async function ask(p,j=true){
+ let m=cfg.m||DM[cfg.p],er;
+ for(let t=0;t<3;t++){
+  try{return await call(p,j,m)}catch(x){er=x;if(!/demand|overload|unavailable|exhaust|quota|429|500|503/i.test(x.message))break;if(t===1&&cfg.p==='g')m='gemini-flash-lite-latest';await new Promise(r=>setTimeout(r,2500*(t+1)))}
+ }
+ throw er;
+}
+$('go').onclick=async()=>{
+ const l=$('ml').value.trim(),q=$('mq').value.trim(),e=$('err'),b=$('go');e.textContent='';
+ if(!q){e.textContent='Добавь вопросы к экзамену';return}
+ if(!cfg.k)return $('gear').click();
+ if(E.cards.length&&!confirm('Заменить текущие карточки и конспект новыми? Твои правки пропадут.'))return;
+ b.disabled=true;b.innerHTML='<i class="sp"></i>Генерирую, до минуты';
+ try{
+  const t=await ask(FULL(l,q)),c=JSON.parse(t.slice(t.indexOf('{'),t.lastIndexOf('}')+1)).cards;
+  if(!c?.length)throw Error('ИИ вернул пустой ответ, попробуй ещё раз');
+  E.cards=c.map(x=>({q:String(x.q),a:String(x.a),s:x.src||'G'}));E.ord=E.cards.map((_,i)=>i);E.i=0;E.r={};rev=false;save();render();notes();tab(2);
+ }catch(x){e.textContent='Ошибка: '+x.message}
+ b.disabled=false;b.innerHTML=I('ai',20)+'Создать карточки';
+};
+function render(){
+ $('dk').hidden=false;$('rs').hidden=true;
+ card.style.transition='none';card.style.transform='';card.style.opacity=1;card.style.setProperty('--g',0);void card.offsetWidth;card.style.transition='';
+ if(!E.cards.length){card.className='card fr';card.innerHTML='<div class="q">Карточек пока нет. Открой «Материалы» и создай их.</div>';$('bar').innerHTML='';$('cnt').textContent='';$('st').innerHTML='';$('pb').style.width=0;return}
+ const n=E.ord.length;
+ if(E.i>=n)return fin();
+ const ix=E.ord[E.i],c=E.cards[ix],k=E.ord.filter(i=>E.r[i]===1).length,u=E.ord.filter(i=>E.r[i]===0).length,sm='<span class="stm ok">знаю</span><span class="stm no">не знаю</span>';
+ $('cnt').textContent=`${E.i+1} из ${n}`;$('pb').style.width=E.i/n*100+'%';
+ $('st').innerHTML=`<span class="cp ok">${I('ok',14)}${k}</span><span class="cp no">${I('x',14)}${u}</span>`;
+ card.className='card '+(rev?'bk':'fr');
+ card.innerHTML=rev?`${sm}<div class="bh"><span class="pill">Вопрос ${ix+1}</span><span class="pill ${E.r[ix]?'ok':'no'}">${E.r[ix]?'Знаю':'Не знаю'}</span><button class="cpb" type="button">${I('cp',15)}Копировать</button></div><div class="qs">${inl(c.q)}</div><div class="a">${fmt(c.a)}${phh(c)}<span class="bd">${B[c.s]||B.G}</span></div>`
+ :`${sm}<div class="ql">Вопрос ${ix+1}</div><div class="q${c.q.length>150?' lg':''}">${inl(c.q)}</div><div class="hint"><span>${I('l',16)}не знаю</span><span>знаю${I('r',16)}</span></div>`;
+ $('bar').innerHTML=`<button class="rs" data-a="b"${E.i?'':' disabled'} aria-label="Назад">${I('undo')}</button>`+(rev?`<button class="pb2 sec" data-a="e">${I('pen',18)}Править</button><button class="pb2 pri" data-a="x">Дальше</button>`:`<button class="rb" style="--c:var(--no)" data-a="n" aria-label="Не знаю">${I('x',30)}</button><button class="rb" style="--c:var(--ok)" data-a="k" aria-label="Знаю">${I('ok',30)}</button>`);
+ hydrate(card);
+ card.animate?.([{transform:'scale(.95)',opacity:.4},{transform:'none',opacity:1}],{duration:240,easing:'cubic-bezier(.2,.8,.2,1)'});
+}
+function fin(){
+ const u=E.ord.filter(i=>E.r[i]===0),n=E.ord.length,k=n-u.length,pc=Math.round(k/n*100),C=2*Math.PI*52;
+ $('res').innerHTML=`<h1>Колода пройдена</h1><div class="ring"><svg viewBox="0 0 120 120"><circle class="rt" cx="60" cy="60" r="52"/><circle class="rf" cx="60" cy="60" r="52" stroke-dasharray="${C*pc/100} ${C}"/></svg><div><b>${pc}%</b><small>знаю</small></div></div><div class="sts"><div class="ok"><b>${k}</b>знаю</div><div class="no"><b>${u.length}</b>не знаю</div></div>`+(u.length?`<label class="lab" style="text-align:left">Стоит повторить</label><div class="rl">${u.map(i=>`<div>${esc(E.cards[i].q)}</div>`).join('')}</div>`:'');
+ $('rep').hidden=!u.length;$('dk').hidden=true;$('rs').hidden=false;
+}
+function run(o){E.ord=o;E.i=0;rev=false;if(o.length===E.cards.length)E.r={};else o.forEach(i=>delete E.r[i]);save();render()}
+$('rep').onclick=()=>run(E.ord.filter(i=>E.r[i]===0));
+$('all').onclick=()=>run(E.cards.map((_,i)=>i));
+$('lastc').onclick=()=>{E.i=E.ord.length-1;rev=false;save();render()};
+const fly=(d,cb)=>{card.style.transform=`translateX(${d*480}px) rotate(${d*22}deg)`;card.style.opacity=0;setTimeout(cb,240)},
+nxt=()=>{rev=false;E.i++;save();render()};
+function act(a){
+ if(!E||!E.cards.length||E.i>=E.ord.length)return;
+ const ix=E.ord[E.i];
+ if(a==='b'){if(E.i>0){E.i--;rev=false;save();render()}return}
+ if(a==='e')return edit(ix);
+ if(rev)return fly(last,nxt);
+ navigator.vibrate?.(a==='k'?14:[12,50,12]);E.r[ix]=a==='k'?1:0;rev=true;save();render();
+}
+$('bar').onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled){last=1;act(b.dataset.a)}};
+card.onpointerdown=e=>{drag=true;sx=e.clientX;dx=0;card.style.transition='none';card.setPointerCapture(e.pointerId)};
+card.onpointermove=e=>{if(!drag)return;dx=e.clientX-sx;card.style.transform=`translateX(${dx}px) rotate(${dx/20}deg)`;card.dataset.d=dx>0?'r':'l';card.style.setProperty('--g',Math.min(Math.abs(dx)/120,1))};
+card.onpointerup=card.onpointercancel=e=>{
+ if(!drag)return;drag=false;card.style.transition='';card.style.setProperty('--g',0);
+ if(e.type==='pointerup'&&Math.abs(dx)<8){card.style.transform='';if(!rev)act('n');else{const el=document.elementFromPoint(e.clientX,e.clientY),im=el?.closest('img'),cb=el?.closest('.cpb');if(im)view(im.src);else if(cb){const c=E.cards[E.ord[E.i]];cpy(`${c.q}\n${c.a}`,cb)}else el?.closest('.qs')?.classList.toggle('op')}}
+ else if(Math.abs(dx)>100){last=dx>0?1:-1;act(dx>0?'k':'n')}
+ else card.style.transform='';
+};
+function notes(){
+ const f=$('sq').value.trim().toLowerCase(),h=E.cards.map((c,i)=>(c.q+' '+c.a).toLowerCase().includes(f)?ent(c,i):'').join('');
+ $('nl').innerHTML=h||`<p style="color:var(--mu)">${E.cards.length?'Ничего не найдено.':'Ответы появятся здесь, когда ты создашь карточки.'}</p>`;hydrate($('nl'));
+}
+$('sq').oninput=notes;
+$('nl').onclick=e=>{const b=e.target.closest('[data-e]'),k=e.target.closest('[data-c]'),m=e.target.closest('img');if(b)edit(+b.dataset.e);else if(k){const c=E.cards[+k.dataset.c];cpy(`${c.q}\n${c.a}`,k)}else if(m)view(m.src)};
+const fs=d=>{cfg.fs=Math.min(24,Math.max(14,(cfg.fs||17)+d));sv('cfg',cfg);$('nl').style.setProperty('--fs',cfg.fs+'px')};
+$('fm').onclick=()=>fs(-1);$('fp').onclick=()=>fs(1);$('nl').style.setProperty('--fs',(cfg.fs||17)+'px');
+$('vw').onclick=()=>$('vw').close();
+/*T0*/
+const TS=Object.fromEntries('alpha α beta β gamma γ delta δ epsilon ε varepsilon ε zeta ζ eta η theta θ vartheta ϑ iota ι kappa κ lambda λ mu μ nu ν xi ξ pi π rho ρ varrho ϱ sigma σ tau τ upsilon υ phi φ varphi φ chi χ psi ψ omega ω Gamma Γ Delta Δ Theta Θ Lambda Λ Xi Ξ Pi Π Sigma Σ Phi Φ Psi Ψ Omega Ω cdot ⋅ times × div ÷ pm ± mp ∓ le ≤ leq ≤ ge ≥ geq ≥ ne ≠ neq ≠ approx ≈ equiv ≡ sim ∼ propto ∝ infty ∞ partial ∂ nabla ∇ to → rightarrow → leftarrow ← Rightarrow ⇒ Leftarrow ⇐ Leftrightarrow ⇔ leftrightarrow ↔ implies ⇒ iff ⇔ in ∈ notin ∉ subset ⊂ subseteq ⊆ cup ∪ cap ∩ forall ∀ exists ∃ emptyset ∅ ldots … dots … cdots ⋯ circ ∘ degree ° angle ∠ perp ⊥ parallel ∥ sum ∑ prod ∏ int ∫ oint ∮ hbar ℏ ell ℓ prime ′ ll ≪ gg ≫ lt < gt > land ∧ lor ∨ uparrow ↑ downarrow ↓ mapsto ↦'.split(' ').flatMap((x,i,r)=>i%2?[]:[[x,r[i+1]]]));
+const SR=/ *([_^])/y,MR=/\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|\$(?!\s)((?:[^$\\\n]|\\[\s\S])+?)\$(?!\d)/g,
+FN=/^(sin|cos|tan|tg|ctg|cot|sec|csc|arcsin|arccos|arctan|arctg|sh|ch|th|ln|lg|log|exp|lim|max|min|sup|inf|det|dim|ker|gcd|mod|deg)$/,
+SPC={',':'\u2009',';':'\u2005',':':'\u2005',' ':' ','!':'',quad:'\u2003',qquad:'\u2003\u2003'},
+OPS='=<>+±∓×÷⋅≤≥≠≈≡∼∝→←⇒⇐⇔↔↦∈∉⊂⊆∪∩∧∨≪≫';
+function tex(src,disp){
+ const s=src,N=s.length,X=esc;let p=0;
+ const arg=()=>{while(s[p]===' ')p++;if(s[p]==='{'){p++;const r=seq();p++;return r}return one()},
+ raw=()=>{while(s[p]===' ')p++;if(s[p]!=='{')return s[p++]||'';let d=1,i=++p;while(p<N&&d){if(s[p]==='{')d++;else if(s[p]==='}')d--;p++}return s.slice(i,p-1)},
+ sym=c=>/[α-ωϑϱ]/.test(c)?`<var>${c}</var>`:/[∑∏∫∮]/.test(c)?`<span class="mop">${c}</span>`:OPS.includes(c)?`<span class="mo">${X(c)}</span>`:X(c),
+ one=()=>{
+  const c=s[p++];
+  if(c===undefined)return '';
+  if(c==='{'){const r=seq();p++;return r}
+  if(c==='\\'){
+   let n=s[p]||'';
+   if(/[a-zA-Z]/.test(n)){const i=p;while(/[a-zA-Z]/.test(s[p]||''))p++;n=s.slice(i,p)}else p++;
+   switch(n){
+    case'frac':case'dfrac':case'tfrac':{const a=arg(),b=arg();return `<span class="mf"><span>${a}</span><span>${b}</span></span>`}
+    case'sqrt':{let k='';if(s[p]==='['){const j=s.indexOf(']',p);k=s.slice(p+1,j);p=j+1}return `<span class="ms">${k?`<sup>${X(k)}</sup>`:''}√<span class="mr">${arg()}</span></span>`}
+    case'text':case'mathrm':case'textrm':case'operatorname':case'mbox':case'textit':case'textbf':return `<span class="mt">${X(raw())}</span>`;
+    case'mathbf':case'boldsymbol':case'bm':return `<b>${arg()}</b>`;
+    case'mathbb':{const r=raw();return {R:'ℝ',N:'ℕ',Z:'ℤ',Q:'ℚ',C:'ℂ'}[r]||X(r)}
+    case'vec':return `<span class="ma" data-a="→">${arg()}</span>`;
+    case'hat':case'widehat':return `<span class="ma" data-a="^">${arg()}</span>`;
+    case'dot':return `<span class="ma" data-a="˙">${arg()}</span>`;
+    case'tilde':case'widetilde':return `<span class="ma" data-a="~">${arg()}</span>`;
+    case'overline':case'bar':return `<span class="mr">${arg()}</span>`;
+    case'left':case'right':if(s[p]==='.')p++;return '';
+    case'begin':case'end':raw();return '';
+    case'\\':return '<br>'
+   }
+   if(n in SPC)return SPC[n];
+   if(FN.test(n))return `<span class="mt">${n}</span>\u2009`;
+   if(TS[n])return sym(TS[n]);
+   if(/^(big|Big|bigg|Bigg)[lrm]?$|^(limits|nolimits|displaystyle|textstyle|scriptstyle|rm|it|bf)$/.test(n))return '';
+   return /^[{}%$&#_]$/.test(n)?X(n):X('\\'+n)
+  }
+  if(/[A-Za-z]/.test(c))return `<var>${c}</var>`;
+  if(c==='&')return ' ';if(c==='~')return '\u00a0';if(c==="'")return '′';
+  if(c==='-')return '<span class="mo">−</span>';
+  return sym(c)
+ },
+ seq=()=>{let o='';
+  while(p<N&&s[p]!=='}'){
+   if(s[p]===' '){if(/[а-яё]/i.test((s[p-1]||'')+(s[p+1]||'')))o+=' ';p++;continue}
+   const a=s[p]==='_'||s[p]==='^'?'':one();let sb='',sp='';
+   for(;;){SR.lastIndex=p;const m=SR.exec(s);if(!m)break;p=SR.lastIndex;if(m[1]==='_')sb=arg();else sp=arg()}
+   o+=sb&&sp?`${a}<span class="ss"><sup>${sp}</sup><sub>${sb}</sub></span>`:sb?`${a}<sub>${sb}</sub>`:sp?`${a}<sup>${sp}</sup>`:a}
+  return o};
+ try{let o='';while(p<N){o+=seq();if(p<N)p++}return disp?`<span class="m mb">${o}</span>`:`<span class="m">${o}</span>`}catch(e){return `<span class="m">${X(src)}</span>`}
+}
+function inl(s){const M=[];s=String(s).replace(MR,(m,a,b,c,d)=>{M.push(tex(a??b??c??d,a!==undefined||b!==undefined));return '\u0001'+(M.length-1)+'\u0002'});return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\u0001(\d+)\u0002/g,(_,i)=>M[i])}
+const cpy=async(t,b)=>{try{await navigator.clipboard.writeText(t)}catch{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.append(a);a.select();document.execCommand('copy');a.remove()}const o=b.innerHTML;b.innerHTML=I('ok',16)+'Скопировано';setTimeout(()=>b.innerHTML=o,1500)};
+/*T1*/
+$('cp').onclick=()=>{navigator.clipboard?.writeText(E.cards.map((c,i)=>`${i+1}. ${c.q}\n${c.a}`).join('\n\n')).then(()=>{$('cp').innerHTML=I('ok',20)+'Скопировано';setTimeout(()=>$('cp').innerHTML=I('cp',20)+'Скопировать конспект',1500)})};
+function edit(i){EI=i;const c=E.cards[i];$('eq').value=c.q;$('ea').value=c.a;$('ei').value='';$('eer').textContent='';EP=[...(c.ph||[])];ephs();$('ed').showModal()}
+$('ed').querySelectorAll('.chip').forEach(c=>c.onclick=()=>$('ei').value=c.textContent);
+$('esv').onclick=()=>{const c=E.cards[EI],q=$('eq').value.trim()||c.q,a=$('ea').value.trim();if(q!==c.q||a!==c.a){c.q=q;c.a=a;c.s='E'};(c.ph||[]).filter(p=>!EP.includes(p)).forEach(p=>pdel(p));c.ph=EP;save();notes();render()};
+const ephs=()=>{$('ephs').innerHTML=EP.map(p=>`<span class="th"><img data-p="${p}" alt=""><button type="button" data-x="${p}" aria-label="Убрать фото">✕</button></span>`).join('');hydrate($('ephs'))};
+$('ephs').onclick=e=>{const x=e.target.closest('[data-x]');if(x){EP=EP.filter(p=>p!==x.dataset.x);ephs()}};
+$('eph').onclick=()=>$('ef').click();
+$('ef').onchange=async()=>{
+ try{for(const f of $('ef').files){const id=pid();await pput(id,await shrink(f));EP.push(id)}}catch(x){$('eer').textContent='Не удалось добавить фото: '+x.message}
+ $('ef').value='';ephs();
+};
+$('eai').onclick=async()=>{
+ const b=$('eai'),e=$('eer');e.textContent='';
+ if(!cfg.k){e.textContent='Сначала вставь API-ключ в настройках на главном экране';return}
+ b.disabled=true;b.innerHTML='<i class="sp"></i>Переписываю';
+ try{
+  const t=await ask(`Перепиши ответ на экзаменационный вопрос по указанию. Верни ТОЛЬКО новый текст ответа, без пояснений. Требования к оформлению:\n${rules()}\n\nКОНСПЕКТ ЛЕКЦИИ:\n${E.lec||'(пусто)'}\n\nВОПРОС: ${$('eq').value}\n\nТЕКУЩИЙ ОТВЕТ:\n${$('ea').value}\n\nУКАЗАНИЕ: ${$('ei').value.trim()||'Проверь и улучши ответ: исправь ошибки, добавь недостающее (определения, перечисления, доказательства, если они нужны).'}`,false);
+  $('ea').value=t.trim();
+ }catch(x){e.textContent='Ошибка: '+x.message}
+ b.disabled=false;b.innerHTML=I('ai',20)+'Переписать с ИИ';
+};
+document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=I(e.dataset.i,+e.dataset.s||22));
+['ml','mq'].forEach(i=>$(i).addEventListener('input',cnts));
+$('clr').onclick=()=>{E.h=HUES[(HUES.indexOf(hue(E))+1)%HUES.length];save();document.documentElement.style.setProperty('--h',E.h)};
+home();navigator.storage?.persist?.();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
